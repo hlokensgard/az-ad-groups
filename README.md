@@ -1,2 +1,7 @@
-# az-ad-groups
-A Terraform module that creates an azure ad group with the option of adding access packages, PIM and conditional access. 
+# Azure AD group terraform module 
+
+# Permissions 
+The user or service principal that will deploy this code needs the following permissions: 
+- Application Role:  Directory.ReadWrite.All
+- Directory Role: Groups Administrator
+- Directory Role: User Administrator
