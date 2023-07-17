@@ -7,3 +7,7 @@ data "azuread_user" "members" {
   for_each            = var.azure_ad_group_configuration.members
   user_principal_name = each.value
 }
+
+data "azuread_access_package_catalog_role" "example" {
+  display_name = "Catalog owner"
+}

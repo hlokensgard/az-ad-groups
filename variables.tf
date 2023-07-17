@@ -38,7 +38,7 @@ variable "enable_conditional_access" {
 }
 
 variable "conditional_access_configuration" {
-  type = object({
+  type = optional(object({
     display_name = string
     conditions = object({
       application = object({
@@ -91,6 +91,104 @@ variable "conditional_access_configuration" {
       operator          = string
       terms_of_use      = optional(list(string), null)
     })
-  })
+  }), null)
+}
+
+variable "enable_access_pacakges" {
+  type        = bool
+  description = "This variable is used to enable access packages for Azure AD group"
+  default     = false
+}
+
+variable "access_pacakges_configuration" {
+  type = optional(object({
+    access_package_catalog = object({
+      display_name       = string
+      description        = string
+      externally_visible = optional(bool, null)
+      published          = optional(bool, null)
+    })
+    access_packages = object({
+      display_name = string
+      description  = string
+      hidden       = option(bool, null)
+    })
+    access_package_assignment = object({
+      access_package_assignment_id          = string
+      access_package_assignment_resource_id = string
+    })
+    access_package_assignment_policy = object({
+      approval_settings = optional(object({
+        approval_required_for_extension = optional(bool, null)
+        approval_required               = optional(bool, null)
+        approval_stage = optional(object({
+          alternative_approval_enabled = optional(bool, null)
+          alternative_approver = optional(object({
+            backup       = optional(bool, null)
+            object_id    = optional(string, null)
+            subject_type = string
+          }), null)
+          approval_timeout_in_days            = optional(string, null)
+          approver_justification_required     = optional(bool, null)
+          enable_alternative_approval_in_days = optional(string, null)
+          primary_approver = optional(object({
+            backup       = optional(bool, null)
+            object_id    = optional(string, null)
+            subject_type = string
+          }), null)
+        }), null)
+        requestor_justification_required = optional(bool, null)
+      }), null)
+      assignment_review_settings = optional(object({
+        access_recommendation_enabled   = optional(bool, null)
+        access_review_timeout_behavior  = optional(string, null)
+        approver_justification_required = optional(bool, null)
+        duration_in_days                = number
+        enabled                         = optional(bool, null)
+        review_frequency                = optional(string, null)
+        review_type                     = optional(string, null)
+        reviewer = optional(object({
+          backup       = optional(bool, null)
+          object_id    = optional(string, null)
+          subject_type = string
+        }), null)
+        starting_on = optional(string, null)
+      }), null)
+      description       = string
+      display_name      = string
+      duration_in_days  = optional(string, null)
+      expiration_date   = optional(string, null)
+      extension_enabled = optional(bool, null)
+      question = optional(object({
+        choice = optional(object({
+          actual_value = string
+          display_value = object({
+            default_text = string
+            localized_texts = optional(object({
+              content       = string
+              language_code = string
+            }), null)
+          })
+        }), null)
+        required = optional(bool, null)
+        sequence = optional(string, null)
+        text = object({
+          default_text = string
+          localized_texts = optional(object({
+            content       = string
+            language_code = string
+          }), null)
+        })
+      }), null)
+      requestor_settings = optional(object({
+        requestor = optional(object({
+          object_id    = optional(string, null)
+          subject_type = string
+        }), null)
+        requestor_accepted = optional(bool, null)
+        scope_type         = optional(string, null)
+      }), null)
+    })
+  }), null)
 }
 

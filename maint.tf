@@ -127,8 +127,178 @@ resource "azuread_conditional_access_policy" "this" {
 
 
 # Access packages 
+resource "azuread_access_package_catalog" "this" {
+  count              = var.enable_access_package ? 1 : 0
+  description        = var.access_package_configuration.description
+  display_name       = var.access_package_configuration.display_name
+  externally_visible = var.access_package_configuration.externally_visible
+  published          = var.access_package_configuration.published
+}
+
+resource "azuread_access_package" "this" {
+  count        = var.enable_access_package ? 1 : 0
+  catalog_id   = azuread_access_package_catalog.this.id
+  display_name = var.access_package_configuration.display_name
+  description  = var.access_package_configuration.description
+  hidden       = var.access_package_configuration.hidden
+}
+
+resource "azuread_access_package_assignment_policy" "this" {
+  count             = var.enable_access_package ? 1 : 0
+  access_package_id = azuread_access_package.this.id
+  description       = var.access_package_configuration.description
+  display_name      = var.access_package_configuration.display_name
+  duration_in_days  = var.access_package_configuration.duration_in_days
+  expiration_date   = var.access_package_configuration.expiration_date
+  extension_enabled = var.access_package_configuration.extension_enabled
 
 
+
+  dynamic "approval_settings" {
+    for_each = var.access_package_configuration.approval_settings != null ? [var.access_package_configuration.approval_settings] : []
+    content {
+      approval_required_for_extension = approval_settings.value.approval_required_for_extension
+      approval_required               = approval_settings.value.approval_required
+      dynamic "approval_stage" {
+        for_each = approval_settings.value.approval_stage != null ? [approval_settings.value.approval_stage] : []
+        content {
+          alternative_approval_enabled        = approval_stage.value.alternative_approval_enabled
+          approval_timeout_in_days            = approval_stage.value.approval_timeout_in_days
+          approver_justification_required     = approval_stage.value.approver_justification_required
+          enable_justification_required       = approval_stage.value.enable_justification_required
+          enable_alternative_approval_in_days = approval_stage.value.enable_alternative_approval_in_days
+          dynamic "primary_approver" {
+            for_each = approval_stage.value.primary_approver != null ? [approval_stage.value.primary_approver] : []
+            content {
+              backup       = primary_approver.value.backup
+              object_id    = primary_approver.value.object_id
+              subject_type = primary_approver.value.subject_type
+            }
+          }
+          dynamic "alternative_approver" {
+            for_each = approval_stage.value.alternative_approver != null ? [approval_stage.value.alternative_approver] : []
+            content {
+              backup       = alternative_approver.value.backup
+              object_id    = alternative_approver.value.object_id
+              subject_type = alternative_approver.value.subject_type
+            }
+          }
+        }
+      }
+      requestor_justification_required = approval_settings.value.requestor_justification_required
+    }
+  }
+
+  dynamic "assignment_review_settings" {
+    for_each = var.access_package_configuration.assignment_review_settings != null ? [var.access_package_configuration.assignment_review_settings] : []
+    content {
+      access_recommendation_enabled   = assignment_review_settings.value.access_recommendation_enabled
+      access_review_timeout_behavior  = assignment_review_settings.value.access_review_timeout_behavior
+      approver_justification_required = assignment_review_settings.value.approver_justification_required
+      duration_in_days                = assignment_review_settings.value.duration_in_days
+      enabled                         = assignment_review_settings.value.enabled
+      review_frequency                = assignment_review_settings.value.review_frequency
+      review_type                     = assignment_review_settings.value.review_type
+      starting_on                     = assignment_review_settings.value.starting_on
+      dynamic "reviewer" {
+        for_each = assignment_review_settings.value.reviewer != null ? [assignment_review_settings.value.reviewer] : []
+        content {
+          backup       = reviewer.value.backup
+          object_id    = reviewer.value.object_id
+          subject_type = reviewer.value.subject_type
+        }
+      }
+    }
+
+  }
+
+  dynamic "question" {
+    dynamic "choice" {
+      for_each = var.access_package_configuration.question != null ? [var.access_package_configuration.question.choice] : []
+      content {
+        actual_value = choice.value.actual_value
+        dynamic "display_value" {
+          for_each = choice.value.display_value != null ? [choice.value.display_value] : []
+          content {
+            default_text = display_value.value.default_text
+            dynamic "localized_text" {
+              for_each = display_value.value.localized_text != null ? [display_value.value.localized_text] : []
+              content {
+                content       = localized_text.value.content
+                language_code = localized_text.value.language_code
+              }
+            }
+          }
+        }
+      }
+    }
+
+    dynamic "required" {
+      for_each = var.access_package_configuration.question != null ? [var.access_package_configuration.question.required] : []
+      content {
+        display_name = required.value.display_name
+        value        = required.value.value
+      }
+    }
+
+    dynamic "sequence" {
+      for_each = var.access_package_configuration.question != null ? [var.access_package_configuration.question.sequence] : []
+      content {
+        display_name = sequence.value.display_name
+        value        = sequence.value.value
+      }
+    }
+
+    dynamic "text" {
+      for_each = var.access_package_configuration.question != null ? [var.access_package_configuration.question.text] : []
+      content {
+        default_text = text.value.default_text
+        dynamic "localized_text" {
+          for_each = text.value.localized_text != null ? [text.value.localized_text] : []
+          content {
+            content       = localized_text.value.content
+            language_code = localized_text.value.language_code
+          }
+        }
+      }
+    }
+
+  }
+
+  dynamic "requestor_settings" {
+    for_each = var.access_package_configuration.requestor_settings != null ? [var.access_package_configuration.requestor_settings] : []
+    content {
+      dynamic "requestor" {
+        for_each = requestor_settings.value.requestor != null ? [requestor_settings.value.requestor] : []
+        content {
+          object_id    = requestor.value.object_id
+          subject_type = requestor.value.subject_type
+        }
+      }
+      requests_accepted = requestor_settings.value.requests_accepted
+      scope_type        = requestor_settings.value.scope_type
+    }
+  }
+
+}
+
+resource "azuread_access_package_resource_catalog_association" "this" {
+  count                  = var.enable_access_package ? 1 : 0
+  catalog_id             = azuread_access_package_catalog.this.id
+  resource_origin_id     = azuread_group.this.object_id
+  resource_origin_system = "AadGroup"
+}
+
+resource "azuread_access_package_resource_package_association" "this" {
+  access_package_id               = azuread_access_package.this.id
+  catalog_resource_association_id = azuread_access_package_resource_catalog_association.this.id
+}
+
+resource "azuread_access_package_catalog_role_assignment" "this" {
+  role_id             = data.azuread_access_package_catalog_role.example.object_id
+  principal_object_id = data.azuread_client_config.current.object_id
+  catalog_id          = azuread_access_package_catalog.this.id
+}
 
 # Azure Resource Manager (ARM) RBAC access to a given scope 
 # Should be based on least priviliged 
