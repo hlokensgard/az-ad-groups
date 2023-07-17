@@ -300,5 +300,34 @@ resource "azuread_access_package_catalog_role_assignment" "this" {
   catalog_id          = azuread_access_package_catalog.this.id
 }
 
-# Azure Resource Manager (ARM) RBAC access to a given scope 
-# Should be based on least priviliged 
+# Azure Resource Manager (ARM) RBAC PIM Role Assignment
+resource "azurerm_pim_eligible_role_assignment" "this" {
+  count              = var.enable_pim_role_assignment ? 1 : 0
+  principal_id       = azuread_group.this.object_id
+  principal_type     = "Group"
+  role_definition_id = data.azurerm_role_definition.pim_role.id
+  scope              = var.pim_configuration.scope
+
+  dynamic "schedule" {
+    for_each = var.pim_configuration.schedule != null ? [var.pim_configuration.schedule] : []
+    content {
+      dynamic "expiration" {
+        for_each = schedule.value.expiration != null ? [schedule.value.expiration] : []
+        content {
+          duration_days  = expiration.value.duration_days
+          duration_hours = expiration.value.duration_hours
+          end_date_time  = expiration.value.end_date_time
+        }
+      }
+      start_date_time = time_static.pim_start_time.rfc3339
+    }
+  }
+  justification = "Expiration Duration Set"
+
+  ticket {
+    number = "1"
+    system = "example ticket system"
+  }
+}
+
+resource "time_static" "pim_start_time" {}

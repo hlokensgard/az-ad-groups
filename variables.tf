@@ -38,7 +38,7 @@ variable "enable_conditional_access" {
 }
 
 variable "conditional_access_configuration" {
-  type = optional(object({
+  type = object({
     display_name = string
     conditions = object({
       application = object({
@@ -91,7 +91,7 @@ variable "conditional_access_configuration" {
       operator          = string
       terms_of_use      = optional(list(string), null)
     })
-  }), null)
+  })
 }
 
 variable "enable_access_pacakges" {
@@ -101,7 +101,7 @@ variable "enable_access_pacakges" {
 }
 
 variable "access_pacakges_configuration" {
-  type = optional(object({
+  type = object({
     access_package_catalog = object({
       display_name       = string
       description        = string
@@ -111,7 +111,7 @@ variable "access_pacakges_configuration" {
     access_packages = object({
       display_name = string
       description  = string
-      hidden       = option(bool, null)
+      hidden       = optional(bool, null)
     })
     access_package_assignment = object({
       access_package_assignment_id          = string
@@ -189,6 +189,29 @@ variable "access_pacakges_configuration" {
         scope_type         = optional(string, null)
       }), null)
     })
-  }), null)
+  })
 }
 
+variable "enable_pim" {
+  type        = bool
+  description = "This variable is used to enable pim for Azure AD group"
+  default     = false
+}
+
+variable "pim_configuration" {
+  type = object({
+    scope              = string
+    principal_id       = string
+    principal_type     = string
+    role_definition_id = string
+    schedule = optional(object({
+      expiration = optional(object({
+        duration_days  = optional(string, null)
+        duration_hours = optional(string, null)
+        end_date_time  = optional(string, null)
+      }), null)
+      start_date_time = optional(string, null)
+    }), null)
+  })
+  description = "This variable is used to configure pim for Azure AD group"
+}
