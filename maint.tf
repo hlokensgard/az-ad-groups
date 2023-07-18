@@ -45,6 +45,7 @@ resource "azuread_group_member" "this" {
 # Resource documentation: https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/conditional_access_policy
 # Microsoft recommendatation 
 resource "azuread_conditional_access_policy" "this" {
+  depends_on = [azuread_group.this]
   count        = var.enable_conditional_access ? 1 : 0
   display_name = var.conditional_access_configuration.display_name
   state        = var.conditional_access_configuration.state
@@ -137,7 +138,8 @@ resource "azuread_conditional_access_policy" "this" {
 
 # Access packages 
 resource "azuread_access_package_catalog" "this" {
-  count              = var.enable_access_package && var.access_packages_configuration.create_new_package_catalog ? 1 : 0
+  depends_on = [azuread_group.this]
+  count              = var.enable_access_package ? (var.access_packages_configuration.create_new_package_catalog ? 1 : 0) : 0
   description        = var.access_packages_configuration.access_package_catalog.description
   display_name       = var.access_packages_configuration.access_package_catalog.display_name
   externally_visible = var.access_packages_configuration.access_package_catalog.externally_visible
@@ -145,6 +147,7 @@ resource "azuread_access_package_catalog" "this" {
 }
 
 resource "azuread_access_package" "this" {
+  depends_on = [azuread_group.this]
   count        = var.enable_access_package ? 1 : 0
   catalog_id   = var.access_packages_configuration.create_new_package_catalog ? azuread_access_package_catalog.this[0].id : data.azuread_access_package_catalog.this[0].id
   display_name = var.access_packages_configuration.access_packages.display_name
@@ -153,6 +156,7 @@ resource "azuread_access_package" "this" {
 }
 
 resource "azuread_access_package_assignment_policy" "this" {
+  depends_on = [azuread_group.this]
   count             = var.enable_access_package ? 1 : 0
   access_package_id = azuread_access_package.this[0].id
   description       = var.access_packages_configuration.access_package_assignment_policy.description
@@ -276,6 +280,7 @@ resource "azuread_access_package_assignment_policy" "this" {
 }
 
 resource "azuread_access_package_resource_catalog_association" "this" {
+  depends_on = [azuread_group.this]
   count                  = var.enable_access_package ? 1 : 0
   catalog_id             = azuread_access_package_catalog.this[0].id
   resource_origin_id     = azuread_group.this.object_id
@@ -283,6 +288,7 @@ resource "azuread_access_package_resource_catalog_association" "this" {
 }
 
 resource "azuread_access_package_resource_package_association" "this" {
+  depends_on = [azuread_group.this]
   count                  = var.enable_access_package ? 1 : 0
   access_package_id               = azuread_access_package.this[0].id
   catalog_resource_association_id = azuread_access_package_resource_catalog_association.this[0].id
@@ -298,6 +304,7 @@ resource "azuread_access_package_resource_package_association" "this" {
 
 # Azure Resource Manager (ARM) RBAC PIM Role Assignment
 resource "azurerm_pim_eligible_role_assignment" "this" {
+  depends_on = [azuread_group.this]
   count              = var.enable_pim ? 1 : 0
   principal_id       = azuread_group.this.object_id
   # principal_type     = "Group"

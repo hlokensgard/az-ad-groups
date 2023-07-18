@@ -19,6 +19,6 @@ data "azurerm_role_definition" "pim_role" {
 }
 
 data "azuread_access_package_catalog" "this" {
-  count = var.access_packages_configuration.create_new_package_catalog == false ? 1 : 0
+  count = var.enable_access_package ? (var.access_packages_configuration.create_new_package_catalog ? 1 : 0) : 0
   display_name = var.access_packages_configuration.access_packages.catalog_display_name
 }

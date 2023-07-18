@@ -1,4 +1,5 @@
 variable "azure_ad_group_configuration" {
+  description = "This variable is used to configure Azure AD group"
   type = object({
     administrative_unit_ids    = optional(set(string), null)
     assignable_to_role         = optional(bool, false)
@@ -25,24 +26,23 @@ variable "azure_ad_group_configuration" {
     types                     = optional(list(string), null)
     visibility                = optional(string, null)
     writeback_enabled         = optional(string, false)
-
   })
-  description = "This variable is used to configure Azure AD group"
 }
 
 
 variable "enable_conditional_access" {
-  type        = bool
   description = "This variable is used to enable conditional access for Azure AD group"
+  type        = bool
   default     = false
 }
 
 variable "conditional_access_configuration" {
+  description = "This variable is used to configure conditional access for Azure AD group"
   type = object({
     display_name = string
     conditions = object({
       application = object({
-        exluded_applications  = optional(list(string), null)
+        excluded_applications  = optional(list(string), null)
         included_applications = optional(list(string), null)
         included_user_actions = optional(list(string), null)
       })
@@ -87,24 +87,24 @@ variable "conditional_access_configuration" {
     state = string
     grant_controls = object({
       built_in_controls = list(string)
-      custom_controls   = optional(list(string), null)
+      custom_authentication_factors   = optional(list(string), null)
       operator          = string
       terms_of_use      = optional(list(string), null)
     })
   })
-  description = "This variable is used to configure conditional access for Azure AD group"
   default = null
 }
 
 variable "enable_access_package" {
-  type        = bool
   description = "This variable is used to enable access packages for Azure AD group"
+  type        = bool
   default     = false
 }
 
 variable "access_packages_configuration" {
+  description = "This variable is used to configure access packages for Azure AD group"
   type = object({
-    create_new_package_catalog = optional(bool, null)
+    create_new_package_catalog = optional(bool, false)
     access_package_catalog = optional(object({
       display_name       = string
       description        = string
@@ -191,16 +191,16 @@ variable "access_packages_configuration" {
     })
   })
   default = null
-  description = "This variable is used to configure access packages for Azure AD group"
 }
 
 variable "enable_pim" {
-  type        = bool
   description = "This variable is used to enable pim for Azure AD group"
+  type        = bool
   default     = false
 }
 
 variable "pim_configuration" {
+  description = "This variable is used to configure pim for Azure AD group"
   type = object({
     scope              = string
     principal_id       = string
@@ -216,5 +216,4 @@ variable "pim_configuration" {
     }), null)
   })
   default = null
-  description = "This variable is used to configure pim for Azure AD group"
 }
