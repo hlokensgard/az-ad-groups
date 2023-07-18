@@ -1,9 +1,9 @@
 variable "azure_ad_group_configuration" {
   type = object({
-    administrative_unit_ids    = optional(string, null)
+    administrative_unit_ids    = optional(set(string), null)
     assignable_to_role         = optional(bool, false)
     auto_subscribe_new_members = optional(bool, false)
-    behaviors                  = optional(string, null)
+    behaviors                  = optional(set(string), null)
     description                = optional(string, null)
     display_name               = string
     dynamic_membership = optional(object({
@@ -19,15 +19,15 @@ variable "azure_ad_group_configuration" {
     onpremises_group_type     = optional(string, "UniversalSecurityGroup")
     owners                    = optional(list(string), null)
     prevent_duplicate_names   = optional(bool, true)
-    provisioning_options      = optional(string, null)
-    security_enabled          = optional(bool, false)
+    provisioning_options      = optional(set(string), null)
+    security_enabled          = optional(bool, true)
     theme                     = optional(string, null)
     types                     = optional(list(string), null)
     visibility                = optional(string, null)
-    writeback_enabled         = optional(string, null)
+    writeback_enabled         = optional(string, false)
 
   })
-  description = "description"
+  description = "This variable is used to configure Azure AD group"
 }
 
 
@@ -92,30 +92,30 @@ variable "conditional_access_configuration" {
       terms_of_use      = optional(list(string), null)
     })
   })
+  description = "This variable is used to configure conditional access for Azure AD group"
+  default = null
 }
 
-variable "enable_access_pacakges" {
+variable "enable_access_package" {
   type        = bool
   description = "This variable is used to enable access packages for Azure AD group"
   default     = false
 }
 
-variable "access_pacakges_configuration" {
+variable "access_packages_configuration" {
   type = object({
-    access_package_catalog = object({
+    create_new_package_catalog = optional(bool, null)
+    access_package_catalog = optional(object({
       display_name       = string
       description        = string
       externally_visible = optional(bool, null)
       published          = optional(bool, null)
-    })
+    }), null)
     access_packages = object({
       display_name = string
       description  = string
       hidden       = optional(bool, null)
-    })
-    access_package_assignment = object({
-      access_package_assignment_id          = string
-      access_package_assignment_resource_id = string
+      catalog_display_name = optional(string, null)
     })
     access_package_assignment_policy = object({
       approval_settings = optional(object({
@@ -190,6 +190,8 @@ variable "access_pacakges_configuration" {
       }), null)
     })
   })
+  default = null
+  description = "This variable is used to configure access packages for Azure AD group"
 }
 
 variable "enable_pim" {
@@ -213,5 +215,6 @@ variable "pim_configuration" {
       start_date_time = optional(string, null)
     }), null)
   })
+  default = null
   description = "This variable is used to configure pim for Azure AD group"
 }
