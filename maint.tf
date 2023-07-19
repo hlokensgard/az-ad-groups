@@ -36,16 +36,16 @@ resource "azuread_group" "this" {
 
 # Azure AD Group members 
 resource "azuread_group_member" "this" {
-  for_each         = var.azure_ad_group_configuration.members != null ? toset(data.azuread_user.members) : toset([])
+  for_each         = var.azure_ad_group_configuration.members != null ? toset([for user in data.azuread_user.members : user.object_id]) : toset([])
   group_object_id  = azuread_group.this.id
-  member_object_id = each.value.id
+  member_object_id = each.value
 }
 
 # Conditional access policy 
 # Resource documentation: https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/conditional_access_policy
 # Microsoft recommendatation 
 resource "azuread_conditional_access_policy" "this" {
-  depends_on = [azuread_group.this]
+  depends_on   = [azuread_group.this]
   count        = var.enable_conditional_access ? 1 : 0
   display_name = var.conditional_access_configuration.display_name
   state        = var.conditional_access_configuration.state
@@ -59,7 +59,7 @@ resource "azuread_conditional_access_policy" "this" {
       dynamic "applications" {
         for_each = conditions.value.application != null ? [conditions.value.application] : []
         content {
-          excluded_applications  = applications.value.excluded_applications
+          excluded_applications = applications.value.excluded_applications
           included_applications = applications.value.included_applications
           included_user_actions = applications.value.included_user_actions
         }
@@ -116,9 +116,9 @@ resource "azuread_conditional_access_policy" "this" {
     for_each = var.conditional_access_configuration.session_controls != null ? [var.conditional_access_configuration.session_controls] : []
     content {
       application_enforced_restrictions_enabled = session_controls.value.application_enforced_restrictions_enabled
-      cloud_app_security_policy  =  session_controls.value.cloud_app_security_policy
+      cloud_app_security_policy                 = session_controls.value.cloud_app_security_policy
       disable_resilience_defaults               = session_controls.value.disable_resilience_defaults
-      persistent_browser_mode = session_controls.value.persistent_browser_mode
+      persistent_browser_mode                   = session_controls.value.persistent_browser_mode
       sign_in_frequency                         = session_controls.value.sign_in_frequency
       sign_in_frequency_period                  = session_controls.value.sign_in_frequency_period
     }
@@ -127,10 +127,10 @@ resource "azuread_conditional_access_policy" "this" {
   dynamic "grant_controls" {
     for_each = var.conditional_access_configuration.grant_controls != null ? [var.conditional_access_configuration.grant_controls] : []
     content {
-      built_in_controls = grant_controls.value.built_in_controls
+      built_in_controls             = grant_controls.value.built_in_controls
       custom_authentication_factors = grant_controls.value.custom_authentication_factors
-      operator          = grant_controls.value.operator
-      terms_of_use      = grant_controls.value.terms_of_use
+      operator                      = grant_controls.value.operator
+      terms_of_use                  = grant_controls.value.terms_of_use
     }
   }
 }
@@ -138,7 +138,7 @@ resource "azuread_conditional_access_policy" "this" {
 
 # Access packages 
 resource "azuread_access_package_catalog" "this" {
-  depends_on = [azuread_group.this]
+  depends_on         = [azuread_group.this]
   count              = var.enable_access_package ? (var.access_packages_configuration.create_new_package_catalog ? 1 : 0) : 0
   description        = var.access_packages_configuration.access_package_catalog.description
   display_name       = var.access_packages_configuration.access_package_catalog.display_name
@@ -147,7 +147,7 @@ resource "azuread_access_package_catalog" "this" {
 }
 
 resource "azuread_access_package" "this" {
-  depends_on = [azuread_group.this]
+  depends_on   = [azuread_group.this]
   count        = var.enable_access_package ? 1 : 0
   catalog_id   = var.access_packages_configuration.create_new_package_catalog ? azuread_access_package_catalog.this[0].id : data.azuread_access_package_catalog.this[0].id
   display_name = var.access_packages_configuration.access_packages.display_name
@@ -156,7 +156,7 @@ resource "azuread_access_package" "this" {
 }
 
 resource "azuread_access_package_assignment_policy" "this" {
-  depends_on = [azuread_group.this]
+  depends_on        = [azuread_group.this]
   count             = var.enable_access_package ? 1 : 0
   access_package_id = azuread_access_package.this[0].id
   description       = var.access_packages_configuration.access_package_assignment_policy.description
@@ -280,7 +280,7 @@ resource "azuread_access_package_assignment_policy" "this" {
 }
 
 resource "azuread_access_package_resource_catalog_association" "this" {
-  depends_on = [azuread_group.this]
+  depends_on             = [azuread_group.this]
   count                  = var.enable_access_package ? 1 : 0
   catalog_id             = azuread_access_package_catalog.this[0].id
   resource_origin_id     = azuread_group.this.object_id
@@ -288,8 +288,8 @@ resource "azuread_access_package_resource_catalog_association" "this" {
 }
 
 resource "azuread_access_package_resource_package_association" "this" {
-  depends_on = [azuread_group.this]
-  count                  = var.enable_access_package ? 1 : 0
+  depends_on                      = [azuread_group.this]
+  count                           = var.enable_access_package ? 1 : 0
   access_package_id               = azuread_access_package.this[0].id
   catalog_resource_association_id = azuread_access_package_resource_catalog_association.this[0].id
 }
@@ -304,12 +304,11 @@ resource "azuread_access_package_resource_package_association" "this" {
 
 # Azure Resource Manager (ARM) RBAC PIM Role Assignment
 resource "azurerm_pim_eligible_role_assignment" "this" {
-  depends_on = [azuread_group.this]
+  depends_on         = [azuread_group.this]
   count              = var.enable_pim ? 1 : 0
   principal_id       = azuread_group.this.object_id
-  # principal_type     = "Group"
-  role_definition_id = data.azurerm_role_definition.pim_role[0].id
-  scope              = var.pim_configuration.scope
+  role_definition_id = "${data.azurerm_subscription.pim[0].id}${data.azurerm_role_definition.pim_role[0].id}"
+  scope              = data.azurerm_subscription.pim[0].id
 
   dynamic "schedule" {
     for_each = var.pim_configuration.schedule != null ? [var.pim_configuration.schedule] : []
@@ -329,10 +328,10 @@ resource "azurerm_pim_eligible_role_assignment" "this" {
 
   ticket {
     number = "1"
-    system = "example ticket system"
+    system = "Example ticket system"
   }
 }
 
 resource "time_static" "pim_start_time" {
-  count              = var.enable_pim ? 1 : 0
+  count = var.enable_pim ? 1 : 0
 }

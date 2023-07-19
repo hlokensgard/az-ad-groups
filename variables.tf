@@ -42,7 +42,7 @@ variable "conditional_access_configuration" {
     display_name = string
     conditions = object({
       application = object({
-        excluded_applications  = optional(list(string), null)
+        excluded_applications = optional(list(string), null)
         included_applications = optional(list(string), null)
         included_user_actions = optional(list(string), null)
       })
@@ -86,10 +86,10 @@ variable "conditional_access_configuration" {
     }), null)
     state = string
     grant_controls = object({
-      built_in_controls = list(string)
-      custom_authentication_factors   = optional(list(string), null)
-      operator          = string
-      terms_of_use      = optional(list(string), null)
+      built_in_controls             = list(string)
+      custom_authentication_factors = optional(list(string), null)
+      operator                      = string
+      terms_of_use                  = optional(list(string), null)
     })
   })
   default = null
@@ -112,9 +112,9 @@ variable "access_packages_configuration" {
       published          = optional(bool, null)
     }), null)
     access_packages = object({
-      display_name = string
-      description  = string
-      hidden       = optional(bool, null)
+      display_name         = string
+      description          = string
+      hidden               = optional(bool, null)
       catalog_display_name = optional(string, null)
     })
     access_package_assignment_policy = object({
@@ -128,7 +128,7 @@ variable "access_packages_configuration" {
             object_id    = optional(string, null)
             subject_type = string
           }), null)
-          approval_timeout_in_days            = optional(string, null)
+          approval_timeout_in_days            = string
           approver_justification_required     = optional(bool, null)
           enable_alternative_approval_in_days = optional(string, null)
           primary_approver = optional(object({
@@ -164,7 +164,7 @@ variable "access_packages_configuration" {
           actual_value = string
           display_value = object({
             default_text = string
-            localized_texts = optional(object({
+            localized_text = optional(object({
               content       = string
               language_code = string
             }), null)
@@ -174,7 +174,7 @@ variable "access_packages_configuration" {
         sequence = optional(string, null)
         text = object({
           default_text = string
-          localized_texts = optional(object({
+          localized_text = optional(object({
             content       = string
             language_code = string
           }), null)
@@ -202,10 +202,8 @@ variable "enable_pim" {
 variable "pim_configuration" {
   description = "This variable is used to configure pim for Azure AD group"
   type = object({
-    scope              = string
-    principal_id       = string
-    principal_type     = string
-    role_definition_id = string
+    subscription_id              = string
+    role_definition_display_name = string
     schedule = optional(object({
       expiration = optional(object({
         duration_days  = optional(string, null)
