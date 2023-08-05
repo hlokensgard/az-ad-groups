@@ -13,9 +13,9 @@ data "azurerm_role_definition" "pim_role" {
   name  = var.pim_configuration.role_definition_display_name
 }
 
-data "azuread_access_package_catalog" "this" {
+data "azuread_access_package_catalog" "member" {
   count        = var.enable_access_package ? (var.access_packages_configuration.create_new_package_catalog == false ? 1 : 0) : 0
-  display_name = var.access_packages_configuration.access_packages.catalog_display_name
+  display_name = "Member"
 }
 
 data "azurerm_subscription" "pim" {

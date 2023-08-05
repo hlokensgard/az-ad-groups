@@ -69,6 +69,7 @@ No modules.
 | [azuread_access_package.this](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/access_package) | resource |
 | [azuread_access_package_assignment_policy.this](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/access_package_assignment_policy) | resource |
 | [azuread_access_package_catalog.this](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/access_package_catalog) | resource |
+| [azuread_access_package_catalog_role_assignment.this](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/access_package_catalog_role_assignment) | resource |
 | [azuread_access_package_resource_catalog_association.this](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/access_package_resource_catalog_association) | resource |
 | [azuread_access_package_resource_package_association.this](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/access_package_resource_package_association) | resource |
 | [azuread_conditional_access_policy.this](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/conditional_access_policy) | resource |
@@ -76,7 +77,7 @@ No modules.
 | [azuread_group_member.this](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/group_member) | resource |
 | [azurerm_pim_eligible_role_assignment.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/pim_eligible_role_assignment) | resource |
 | [time_static.pim_start_time](https://registry.terraform.io/providers/hashicorp/time/latest/docs/resources/static) | resource |
-| [azuread_access_package_catalog.this](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/data-sources/access_package_catalog) | data source |
+| [azuread_access_package_catalog.member](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/data-sources/access_package_catalog) | data source |
 | [azuread_client_config.current](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/data-sources/client_config) | data source |
 | [azuread_user.members](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/data-sources/user) | data source |
 | [azurerm_role_definition.pim_role](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/role_definition) | data source |

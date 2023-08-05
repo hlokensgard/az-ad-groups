@@ -294,13 +294,14 @@ resource "azuread_access_package_resource_package_association" "this" {
   catalog_resource_association_id = azuread_access_package_resource_catalog_association.this[0].id
 }
 
-/* resource "azuread_access_package_catalog_role_assignment" "this" {
-  count                  = var.enable_access_package ? 1 : 0
-  role_id             = data.azuread_access_package_catalog_role.this[0].object_id
-  principal_object_id = data.azuread_client_config.current.object_id
+# Setting the resource role for the access package to be member of the entra id group
+resource "azuread_access_package_catalog_role_assignment" "this" {
+  count               = var.enable_access_package ? 1 : 0
+  role_id             = data.azuread_access_package_catalog_role.member[0].object_id
+  principal_object_id = azuread_group.this.object_id
   catalog_id          = azuread_access_package_catalog.this[0].id
 }
- */
+
 
 # Azure Resource Manager (ARM) RBAC PIM Role Assignment
 resource "azurerm_pim_eligible_role_assignment" "this" {
