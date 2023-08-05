@@ -43,7 +43,7 @@ resource "azuread_group_member" "this" {
 
 # Conditional access policy 
 # Resource documentation: https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/conditional_access_policy
-# Microsoft recommendatation 
+# Microsoft recommendatation
 resource "azuread_conditional_access_policy" "this" {
   depends_on   = [azuread_group.this]
   count        = var.enable_conditional_access ? 1 : 0
@@ -148,7 +148,7 @@ resource "azuread_access_package_catalog" "this" {
 
 resource "azuread_access_package" "this" {
   depends_on   = [azuread_group.this]
-  count        = var.enable_access_package ? 1 : 0
+  count        = var.enable_access_package && var.create_new_access_package ? 1 : 0
   catalog_id   = var.access_packages_configuration.create_new_package_catalog ? azuread_access_package_catalog.this[0].id : data.azuread_access_package_catalog.this[0].id
   display_name = var.access_packages_configuration.access_packages.display_name
   description  = var.access_packages_configuration.access_packages.description
@@ -157,7 +157,7 @@ resource "azuread_access_package" "this" {
 
 resource "azuread_access_package_assignment_policy" "this" {
   depends_on        = [azuread_group.this]
-  count             = var.enable_access_package ? 1 : 0
+  count             = var.enable_access_package && var.create_new_access_package ? 1 : 0
   access_package_id = azuread_access_package.this[0].id
   description       = var.access_packages_configuration.access_package_assignment_policy.description
   display_name      = var.access_packages_configuration.access_package_assignment_policy.display_name
@@ -281,7 +281,7 @@ resource "azuread_access_package_assignment_policy" "this" {
 
 resource "azuread_access_package_resource_catalog_association" "this" {
   depends_on             = [azuread_group.this]
-  count                  = var.enable_access_package ? 1 : 0
+  count                  = var.enable_access_package && var.create_new_access_package ? 1 : 0
   catalog_id             = azuread_access_package_catalog.this[0].id
   resource_origin_id     = azuread_group.this.object_id
   resource_origin_system = "AadGroup"
@@ -289,7 +289,7 @@ resource "azuread_access_package_resource_catalog_association" "this" {
 
 resource "azuread_access_package_resource_package_association" "this" {
   depends_on                      = [azuread_group.this]
-  count                           = var.enable_access_package ? 1 : 0
+  count                           = var.enable_access_package && var.create_new_access_package ? 1 : 0
   access_package_id               = azuread_access_package.this[0].id
   catalog_resource_association_id = azuread_access_package_resource_catalog_association.this[0].id
 }

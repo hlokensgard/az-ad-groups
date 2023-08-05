@@ -26,6 +26,7 @@ variable "azure_ad_group_configuration" {
     types                     = optional(list(string), null)
     visibility                = optional(string, null)
     writeback_enabled         = optional(string, false)
+    access_package_id         = optional(string, null)
   })
 }
 
@@ -111,6 +112,7 @@ variable "access_packages_configuration" {
       externally_visible = optional(bool, null)
       published          = optional(bool, null)
     }), null)
+    create_new_access_package = optional(bool, false)
     access_packages = object({
       display_name         = string
       description          = string
