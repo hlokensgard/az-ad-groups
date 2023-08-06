@@ -26,6 +26,7 @@ variable "azure_ad_group_configuration" {
     types                     = optional(list(string), null)
     visibility                = optional(string, null)
     writeback_enabled         = optional(string, false)
+    access_package_id         = optional(string, null)
   })
 }
 
@@ -107,13 +108,18 @@ variable "access_packages_configuration" {
     create_new_package_catalog = optional(bool, false)
     access_package_catalog = optional(object({
       display_name       = string
-      description        = string
+      description        = optional(string, null) # This is only optional when create_new_package_catalog is set to false
       externally_visible = optional(bool, null)
       published          = optional(bool, null)
     }), null)
+    create_new_access_package = optional(bool, false)
+    existing_access_package_information = optional(object({
+      catalog_id   = string
+      display_name = string
+    }), null)
     access_packages = object({
       display_name         = string
-      description          = string
+      description          = optional(string, null) # This is only optional when create_new_access_package is set to false
       hidden               = optional(bool, null)
       catalog_display_name = optional(string, null)
     })
@@ -185,8 +191,8 @@ variable "access_packages_configuration" {
           object_id    = optional(string, null)
           subject_type = string
         }), null)
-        requestor_accepted = optional(bool, null)
-        scope_type         = optional(string, null)
+        requests_accepted = optional(bool, null)
+        scope_type        = optional(string, null)
       }), null)
     })
   })

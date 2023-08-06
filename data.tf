@@ -15,8 +15,15 @@ data "azurerm_role_definition" "pim_role" {
 
 data "azuread_access_package_catalog" "this" {
   count        = var.enable_access_package ? (var.access_packages_configuration.create_new_package_catalog == false ? 1 : 0) : 0
-  display_name = var.access_packages_configuration.access_packages.catalog_display_name
+  display_name = var.access_packages_configuration.access_package_catalog.display_name
 }
+
+data "azuread_access_package" "this" {
+  count        = var.enable_access_package ? (var.access_packages_configuration.create_new_access_package == false ? 1 : 0) : 0
+  catalog_id   = var.access_packages_configuration.existing_access_package_information.catalog_id
+  display_name = var.access_packages_configuration.existing_access_package_information.display_name
+}
+
 
 data "azurerm_subscription" "pim" {
   count           = var.enable_pim ? 1 : 0
