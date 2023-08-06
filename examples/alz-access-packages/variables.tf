@@ -3,6 +3,11 @@ variable "subscription_id" {
   description = "The subscription ID used for authentication"
 }
 
+variable "subscription_id_connectivity" {
+  type        = string
+  description = "The subscription ID for the connectivity subscription"
+}
+
 variable "tenant_id" {
   type        = string
   description = "The tenant ID used for authentication"
